@@ -58,8 +58,16 @@ describe('controller', function () {
 		subject = new app.Controller(model, view);
 	});
 
-	it('should show entries on start-up', function () {
+	it('should show entries on start-up', function () {	
 		// TODO: write test
+		// Define todo and set up the model
+		let todo = {title: 'todo test'};
+		setUpModel([todo]);
+		subject.setView('');
+		expect(model.read).toHaveBeenCalled();
+		expect(view.render).toHaveBeenCalledWith('showEntries', [
+				{title: 'todo test'}
+		]);
 	});
 
 	describe('routing', function () {
@@ -84,10 +92,19 @@ describe('controller', function () {
 
 		it('should show active entries', function () {
 			// TODO: write test
+			// set up completed tasks
+			let todoArray = [{ title: 'todo test', completed: true }];
+			setUpModel(todoArray);
+			subject.setView('#/active');
+			expect(view.render).toHaveBeenCalledWith( 'toggleAll', Object({ checked: true }));
 		});
 
 		it('should show completed entries', function () {
 			// TODO: write test
+			let todoArray = [	{title: 'todo test', completed: true}	];
+			setUpModel(todoArray);
+			subject.setView('');
+			expect(view.render).toHaveBeenCalledWith('clearCompletedButton', Object({ completed: 1, visible: true }) );
 		});
 	});
 
@@ -135,25 +152,63 @@ describe('controller', function () {
 
 	it('should highlight "All" filter by default', function () {
 		// TODO: write test
+			let todo = {title: 'todo test'};
+			setUpModel([todo]);
+			subject.setView('#/active');
+			expect(view.render).toHaveBeenCalledWith('contentBlockVisibility', Object({ visible: true }));
 	});
 
 	it('should highlight "Active" filter when switching to active view', function () {
 		// TODO: write test
+		let todos = [
+			{id: 12, title: 'todo test', completed: true},
+			{id: 13, title: 'todo test2', completed: false}
+		];
+
+		/** Set up model with an empty arrays */
+		setUpModel([todos]);
+		subject.setView('#/active');
+		expect(view.render).toHaveBeenCalledWith('showEntries',
+			[[ Object({ id: 12, title: 'todo test', completed: true }),
+					Object({ id: 13, title: 'todo test2', completed: false })
+				]]
+		);
+		expect(view.render).toHaveBeenCalledWith('setFilter', 'active');
 	});
 
 	describe('toggle all', function () {
 		it('should toggle all todos to completed', function () {
 			// TODO: write test
+			let todo = [
+				{id: 12, title: 'todo test', completed: true}
+			];
+			setUpModel(todo);
+			subject.setView('#/completed');
+			expect(view.render).toHaveBeenCalledWith('contentBlockVisibility', Object({ visible: true }));
+			expect(view.render).toHaveBeenCalledWith('setFilter', 'completed');
 		});
 
 		it('should update the view', function () {
 			// TODO: write test
+			let todo = [
+				{id: 13, title: 'todo test', completed: false},
+			];
+			setUpModel(todo);
+			subject.setView('#/');
+			view.trigger('itemToggle', {id: 13, completed: true});
+			expect(view.render).toHaveBeenCalledWith('updateElementCount', 1);
+			expect(view.render).toHaveBeenCalledWith('toggleAll', Object({ checked: false }) );
+			expect(view.render).toHaveBeenCalledWith('elementComplete', Object({ id: 13, completed: true }) );
+			});
 		});
-	});
 
 	describe('new todo', function () {
 		it('should add a new todo to the model', function () {
 			// TODO: write test
+			setUpModel([{id: 13, title: 'todo test'}]);
+			subject.setView('');
+			expect(view.render).toHaveBeenCalledWith( 'updateElementCount', 1);
+			expect(view.render).toHaveBeenCalledWith( 'showEntries',  [ Object({ id: 13, title: 'todo test' }) ] );
 		});
 
 		it('should add a new todo to the view', function () {
@@ -194,6 +249,11 @@ describe('controller', function () {
 	describe('element removal', function () {
 		it('should remove an entry from the model', function () {
 			// TODO: write test
+			let todo = {id: 12, title: 'todo test', completed: true};
+				setUpModel([todo]);
+				subject.setView('');
+				model.remove(12, function(){});
+				expect(model.remove).toHaveBeenCalledWith(12, jasmine.any(Function));
 		});
 
 		it('should remove an entry from the view', function () {
