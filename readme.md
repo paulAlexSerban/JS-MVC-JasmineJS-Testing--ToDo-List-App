@@ -1,5 +1,5 @@
-# ToDo List App. - Jasmine Testing and MVC design pattern
-> OpenClassrooms.com - Front-End Developer Path - Project 8
+# ToDo List App. - Vanilla JS - MVC and JasmineJS Testing and MVC design pattern
+> [OpenClassrooms.com](https://openclassrooms.com/) - Front-End Developer Path - Project 8
 
 ## Steps
 1. Fix the bugs
